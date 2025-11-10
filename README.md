@@ -16,6 +16,31 @@ A production-ready Twitter bot built with [Bun](https://bun.sh) and TypeScript f
 - 📊 **Sales Tracking** - Thank-you tweets for listing sales and mint sales
 - ⚡ **Modern API** - Uses Twitter API v2
 
+## 🎨 Supported NFT Types
+
+The bot currently tracks and promotes three types of Tezos NFTs from objkt.com:
+
+### 1. Standard Tokens (1/1s and Limited Editions)
+
+- Unique pieces or limited edition tokens with active listings
+- Automatically tracked when listed on objkt.com
+- Example: Single artworks, small edition series
+
+### 2. Open Editions
+
+- Unlimited mints available for a set period
+- Each mint triggers a thank-you tweet to the collector
+- Ideal for accessible, widely-distributed works
+
+### 3. Generative Collections (editart)
+
+- Algorithmic art collections where each mint is unique
+- Supports editart-style generative projects
+- Each minted token tracked individually
+- Perfect for long-tail generative drops
+
+**Want to add support for other marketplaces or NFT types?** See the [Extending the Bot](#-extending-the-bot) section below.
+
 ## 📋 Prerequisites
 
 Before you begin, ensure you have:
@@ -438,6 +463,140 @@ Make sure you've created a `.env` file and filled in all required credentials (T
 1. Test connection: `psql "$DATABASE_URL"`
 2. Run migration: `cat migrations/001_create_schedules.sql | psql "$DATABASE_URL"`
 3. Check SSL mode in connection string
+
+## 🔧 Extending the Bot
+
+The bot is designed to be extensible. Here's how to add new functionality:
+
+### Adding a New Tweet Type
+
+Want to add birthday tweets, milestone celebrations, or other automated posts?
+
+1. **Create a new prompt** in `src/prompts.ts`:
+
+   ```typescript
+   export const prompts = {
+     // ... existing prompts
+     milestone: {
+       system: `You are writing celebration tweets for NFT milestones...`,
+       user: (milestone, count) =>
+         `Celebrate reaching ${count} ${milestone}...`,
+     },
+   };
+   ```
+
+2. **Create the automation file** `src/milestone-tweet.ts`:
+
+   ```typescript
+   export async function processMilestoneTweet(dryRun = false): Promise<void> {
+     // Your logic here
+     if (dryRun) {
+       logger.info('[DRY RUN] Would post milestone tweet');
+       return;
+     }
+     // Post to Twitter
+   }
+
+   if (import.meta.main) {
+     const dryRun = process.argv.includes('--dry-run');
+     processMilestoneTweet(dryRun);
+   }
+   ```
+
+3. **Add scripts** to `package.json`:
+
+   ```json
+   "milestone": "bun run src/milestone-tweet.ts",
+   "milestone:dry-run": "bun run src/milestone-tweet.ts --dry-run"
+   ```
+
+4. **Enable scheduling** by updating `Schedule['type']` in `src/index.ts` and adding a case to `executeSchedule()`
+
+### Adding Support for New NFT Marketplaces
+
+Currently supports objkt.com. To add fxhash, versum, or other marketplaces:
+
+1. **Create API client** (e.g., `src/fxhash.ts`):
+
+   ```typescript
+   export function createFxhashClient(): GraphQLClient {
+     return new GraphQLClient('https://api.fxhash.xyz/graphql');
+   }
+
+   export async function getFxhashTokens(client, wallets) {
+     // GraphQL query
+   }
+   ```
+
+2. **Add transformers** in `src/transformers.ts`:
+
+   ```typescript
+   export function transformFxhashToken(token: any) {
+     return {
+       token_id: token.id,
+       fa_contract: token.contract,
+       // ... map to common structure
+     };
+   }
+   ```
+
+3. **Update sync logic** in `src/sync.ts`:
+   ```typescript
+   export async function syncObjktData(dryRun = false) {
+     // ... existing objkt sync
+
+     // Add fxhash sync
+     const fxhashClient = createFxhashClient();
+     const fxhashTokens = await getFxhashTokens(fxhashClient, wallets);
+     for (const token of fxhashTokens) {
+       const transformed = transformFxhashToken(token);
+       await upsertToken(transformed, dryRun);
+     }
+   }
+   ```
+
+### Customizing AI Prompts
+
+All prompts live in `src/prompts.ts` for easy customization:
+
+```typescript
+export const prompts = {
+  thankYou: {
+    system: `Customize your bot's personality here...`,
+    user: (tokenName, buyers, url) => `Template with ${tokenName}...`,
+  },
+};
+```
+
+**Tips for great prompts:**
+
+- Keep tweets under 280 characters (mention in system prompt)
+- Be specific about tone and voice
+- Avoid clichés and overused phrases
+- Test with `--dry-run` before production
+- Use template literals for dynamic content
+
+### Adding New GraphQL Queries
+
+Need more data from objkt.com?
+
+1. **Add query** to `src/objkt.ts`:
+
+   ```typescript
+   export async function getCollaborations(client, wallets) {
+     const query = `
+       query GetCollabs($wallets: [String!]) {
+         token(where: {creators: {creator_address: {_in: $wallets}}}) {
+           # ... fields
+         }
+       }
+     `;
+     return await client.request(query, { wallets });
+   }
+   ```
+
+2. **Create transformer** in `src/transformers.ts`
+3. **Integrate** into `syncObjktData()` in `src/sync.ts`
 
 ## 📄 License
 
