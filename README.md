@@ -44,6 +44,10 @@ Before you begin, ensure you have:
 
 This bot uses PostgreSQL to track NFT sales, tokens, and schedules.
 
+**Need a database?** We recommend [Neon](https://neon.tech) - a free serverless PostgreSQL platform.
+
+👉 **[See detailed Neon setup guide](./docs/NEON_SETUP.md)** for step-by-step instructions on creating a free database and getting your connection string.
+
 ### Initialize Database Schema
 
 Run the migration script to create all required tables:
