@@ -1,0 +1,58 @@
+{
+  "name": "skllz-twitter-bot",
+  "version": "1.0.0",
+  "description": "Modern Twitter bot built with Bun and TypeScript",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts",
+    "test": "bun run src/index.ts -- --test",
+    "test:queries": "bun run src/test-queries.ts",
+    "sync": "bun run src/sync.ts --sync",
+    "sync:dry-run": "bun run src/sync.ts --sync --dry-run",
+    "mark-processed": "bun run src/mark-processed.ts",
+    "thank": "bun run src/thank-you.ts",
+    "thank:dry-run": "bun run src/thank-you.ts --dry-run",
+    "shill": "bun run src/shill-thread.ts",
+    "shill:dry-run": "bun run src/shill-thread.ts --dry-run",
+    "schedule": "bun run src/schedule.ts",
+    "schema": "bun run src/index.ts -- --test",
+    "build": "bun build src/index.ts --outdir dist --target node",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\""
+  },
+  "keywords": [
+    "twitter",
+    "bot",
+    "bun",
+    "typescript",
+    "automation"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "croner": "^9.1.0",
+    "dotenv": "^16.4.5",
+    "graphql": "^16.12.0",
+    "graphql-request": "^7.3.1",
+    "openai": "^6.8.1",
+    "pg": "^8.16.3",
+    "twitter-api-v2": "^1.17.2"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^20.11.5",
+    "@types/pg": "^8.15.6",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.4",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "bun": ">=1.0.0"
+  }
+}
