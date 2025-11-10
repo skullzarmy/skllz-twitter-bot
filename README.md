@@ -199,6 +199,39 @@ bun run shill
 2. Five token tweets (latest works by timestamp)
 3. Each tweet includes title, description, and URL
 
+### Customizing AI Prompts
+
+All OpenAI prompts are centralized in `src/prompts.ts` for easy customization:
+
+```typescript
+// src/prompts.ts
+export const prompts = {
+  thankYou: {
+    system: `Your system prompt here...`,
+    user: (tokenName, buyers, url) => `Your user prompt...`
+  },
+  shillIntro: { ... },
+  shillToken: { ... }
+}
+```
+
+**To customize:**
+
+1. Edit `src/prompts.ts` with your preferred voice and style
+2. Test changes with dry-run commands:
+   ```bash
+   bun run thank:dry-run
+   bun run shill:dry-run
+   ```
+3. Commit your customized prompts to version control
+
+**Tips for editing prompts:**
+
+- Keep tweets under 280 characters
+- Be specific about tone and style
+- Avoid overused phrases or generic language
+- Test thoroughly before production use
+
 ### Schedule Management
 
 ```bash

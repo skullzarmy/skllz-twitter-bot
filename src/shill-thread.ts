@@ -5,6 +5,7 @@ import { logger } from './utils/logger';
 import { createTwitterClient } from './index';
 import { createOpenAIClient } from './openai';
 import { syncObjktData } from './sync';
+import { prompts } from './prompts';
 
 interface TokenForShill {
   name: string;
@@ -35,22 +36,19 @@ async function generateTokenTweet(
   client: OpenAI,
   token: TokenForShill
 ): Promise<string | null> {
-  const systemPrompt = `You are writing promotional tweets for an NFT artist's work (≤ 280 chars).
-Be creative and engaging. Highlight what makes each piece special. Keep it concise and authentic.
-Don't use hashtags except where explicitly requested. Avoid generic phrases.`;
-
-  const userPrompt = `Write a promotional tweet about this NFT:
-Title: ${token.name}
-${token.description ? `Description: ${token.description}` : ''}
-Include this link at the end: ${token.token_url}
-Tone: enthusiastic but not over-the-top.`;
-
   try {
     const completion = await client.chat.completions.create({
       model: 'o3-mini',
       messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
+        { role: 'system', content: prompts.shillToken.system },
+        {
+          role: 'user',
+          content: prompts.shillToken.user(
+            token.name,
+            token.description,
+            token.token_url
+          ),
+        },
       ],
       max_completion_tokens: 2000,
     });
@@ -66,19 +64,12 @@ Tone: enthusiastic but not over-the-top.`;
  * Generate intro tweet for the thread
  */
 async function generateIntroTweet(client: OpenAI): Promise<string | null> {
-  const systemPrompt = `You are writing an intro tweet for an NFT artist's weekly self-promotion thread (≤ 280 chars).
-Be playful about using AI for self-promotion. Keep it light and fun.`;
-
-  const userPrompt = `Write an intro tweet explaining this is an automagical self-promotion thread using AI, so the artist doesn't have to shill their own shit anymore.
-Must include the hashtag #TEZOSTUESDAY
-Tone: casual, self-aware, slightly humorous.`;
-
   try {
     const completion = await client.chat.completions.create({
       model: 'o3-mini',
       messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
+        { role: 'system', content: prompts.shillIntro.system },
+        { role: 'user', content: prompts.shillIntro.user },
       ],
       max_completion_tokens: 2000,
     });

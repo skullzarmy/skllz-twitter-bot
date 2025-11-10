@@ -5,6 +5,7 @@ import { logger } from './utils/logger';
 import { createTwitterClient } from './index';
 import { createOpenAIClient } from './openai';
 import { syncObjktData } from './sync';
+import { prompts } from './prompts';
 
 interface SaleForThanks {
   sale_id: number;
@@ -102,21 +103,21 @@ async function generateThankYouTweet(
   client: OpenAI,
   batch: BatchedSale
 ): Promise<string | null> {
-  const systemPrompt = `You are a friendly bot writing short thank-you tweets on behalf of an artist after art sales (≤ 280 chars).
-Vary vocabulary and speak naturally. Don't use the first thing that pops into your head. Avoid using hashtags. Avoid the phrase "your support means the world to me".`;
-
   const buyersText = batch.buyers.length > 0 ? batch.buyers.join(' ') : '';
-  const userPrompt = `Write a thank-you tweet for buying a piece called ${batch.token_name}.
-${buyersText ? `Mention buyers: ${buyersText}` : 'No specific buyer to mention.'}
-End with this link: ${batch.token_url}
-Tone: concise and thankful.`;
 
   try {
     const completion = await client.chat.completions.create({
       model: 'o3-mini',
       messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
+        { role: 'system', content: prompts.thankYou.system },
+        {
+          role: 'user',
+          content: prompts.thankYou.user(
+            batch.token_name,
+            buyersText,
+            batch.token_url
+          ),
+        },
       ],
       max_completion_tokens: 2000, // o3-mini needs tokens for reasoning + output
     });
