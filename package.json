@@ -17,6 +17,7 @@
     "shill": "bun run src/shill-thread.ts",
     "shill:dry-run": "bun run src/shill-thread.ts --dry-run",
     "schedule": "bun run src/schedule.ts",
+    "migrate": "bun run src/migrate.ts",
     "schema": "bun run src/index.ts -- --test",
     "build": "bun build src/index.ts --outdir dist --target node",
     "type-check": "tsc --noEmit",
