@@ -140,7 +140,17 @@ bun run sync:dry-run
 bun run sync
 ```
 
-### 6. Set Up Schedules
+### 6. Mark Historical Sales as Processed
+
+**Important:** After your first sync, mark all existing sales as processed to prevent the bot from thanking people for every historical sale:
+
+```bash
+bun run mark-processed
+```
+
+This ensures the bot only sends thank-you tweets for new sales going forward. You can skip this step if you want to thank people for all historical sales (not recommended for large catalogs).
+
+### 7. Set Up Schedules
 
 ```bash
 # Thank-you tweets every hour
@@ -153,7 +163,7 @@ bun run schedule add shill "0 12 * * 2" America/New_York
 bun run schedule list
 ```
 
-### 7. Start the Bot
+### 8. Start the Bot
 
 ```bash
 # Start scheduler (production)
