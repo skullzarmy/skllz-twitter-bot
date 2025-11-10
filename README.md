@@ -44,14 +44,19 @@ Before you begin, ensure you have:
 
 This bot uses PostgreSQL to track NFT sales, tokens, and schedules.
 
-### Run Database Migrations
+### Initialize Database Schema
+
+Run the migration script to create all required tables:
 
 ```bash
-# Run the schedules table migration
-cat migrations/001_create_schedules.sql | psql "$DATABASE_URL"
+bun run migrate
 ```
 
-The bot will automatically create the `nft_sales` and `tokens` tables on first sync.
+This creates:
+
+- `tokens` - NFT token data synced from objkt.com
+- `nft_sales` - Sales tracking with buyer information
+- `schedules` - Dynamic cron schedules for automation
 
 ## 🚀 Quick Start
 
@@ -113,10 +118,12 @@ BOT_INTERVAL_MINUTES=60
 BOT_DEBUG=false
 ```
 
-### 4. Run Database Migration
+### 4. Initialize Database
+
+Run the migration to create all required tables:
 
 ```bash
-cat migrations/001_create_schedules.sql | psql "$DATABASE_URL"
+bun run migrate
 ```
 
 ### 5. Sync NFT Data

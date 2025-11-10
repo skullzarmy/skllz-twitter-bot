@@ -40,3 +40,5 @@ coverage/
 .cache/
 .temp/
 .tmp/
+
+migrations/
